@@ -24,12 +24,11 @@ app.use(cors);
 const axios = require('axios');
 
 //env
-require('dotenv').config();
 require('dotenv').config({path: '../.env'})
 
 
 
-
+//as in http://localhost:5001/weather-experiment-e343d/us-central1/app
 app.get('/', (req, res) => {
     const date = new Date();
 
@@ -46,7 +45,7 @@ app.get('/', (req, res) => {
     </html>`);
   });
 
-
+// as in : http://localhost:5001/weather-experiment-e343d/us-central1/app/miamiweather
   app.get('/miamiweather', (req, res) => {
     const key = process.env.API_KEY
     let data = '';
@@ -63,6 +62,14 @@ app.get('/', (req, res) => {
     .then(function (response) {
       console.log(JSON.stringify(response.data));
       res.json({weather: response.data})
+      const temp = reponse.data.current.temp_f
+      const wind_speed = response.data.current.wind_mph
+      const wind_direction = response.data.current.wind_dir
+      const localtime = response.data.location.localtime
+      const localtime_e = response.data.location.localtime_epoch
+        //so write these to the database next
+     
+
     })
     .catch(function (error) {
       console.log(error);
