@@ -20,8 +20,8 @@ const app = express();
 const cors = require('cors')({origin: true});
 app.use(cors);
 
-//axios
-const axios = require('axios');
+//fetch
+const fetch = require('node-fetch');
 
 //env
 require('dotenv').config({path: '../.env'})
@@ -46,34 +46,39 @@ app.get('/', (req, res) => {
   });
 
 // as in : http://localhost:5001/weather-experiment-e343d/us-central1/app/miamiweather
-  app.get('/miamiweather', (req, res) => {
+  app.get('/miamiweather', async (req, res) => {
     const key = process.env.API_KEY
-    let data = '';
+ 
+    const weather_response = await fetch(`http://api.weatherapi.com/v1/current.json?key=${key}&q=Miami`)
+    const weather_data = await weather_response.json()
 
-    const config = {
-      method: 'get',
-      url: `http://api.weatherapi.com/v1/current.json?key=${key}&q=Miami`,
-      headers: { 
-        'Content-Type': 'application/json'
-      }
-    };
     
-    axios(config)
-    .then(function (response) {
-      console.log(JSON.stringify(response.data));
-      res.json({weather: response.data})
-      const temp = reponse.data.current.temp_f
-      const wind_speed = response.data.current.wind_mph
-      const wind_direction = response.data.current.wind_dir
-      const localtime = response.data.location.localtime
-      const localtime_e = response.data.location.localtime_epoch
-        //so write these to the database next
-     
+      const temp = weather_data.current.temp_f
+      const wind_speed = weather_data.current.wind_mph
+      const wind_direction = weather_data.current.wind_dir
+      const localtime = weather_data.location.localtime
+      const localtime_e = weather_data.location.localtime_epoch
 
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      const data = {
+        temp: temp,
+        wind_speed: wind_speed,
+        wind_direction: wind_direction,
+        localtime: localtime,
+        localtime_e: localtime_e
+      }
+     
+  
+        const writeResult = await admin.firestore().collection('weather').add({
+            temp: temp,
+            wind_speed: wind_speed,
+            wind_direction: wind_direction,
+            localtime: localtime,
+            localtime_e: localtime_e
+        });
+
+
+        res.json({result: `data: ${writeResult} added.`});
+
     
   });
 
