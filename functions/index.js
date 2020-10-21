@@ -58,6 +58,7 @@ app.get('/', (req, res) => {
       const wind_direction = weather_data.current.wind_dir
       const localtime = weather_data.location.localtime
       const localtime_e = weather_data.location.localtime_epoch
+      console.log(localtime_e)
 
       //this isn't needed just for reference point, remove later or maybe use for comparisons
       const data = {
@@ -69,6 +70,8 @@ app.get('/', (req, res) => {
       }
 
       // get existing data, will prob want ot move to a separate file
+      // best to create in the firestore emulator/admin first to retrieve properly
+      // due to function of set()
       const weatherRef = admin.firestore().collection('weather').doc('current');
       const doc = await weatherRef.get();
       if (!doc.exists) {
@@ -77,7 +80,14 @@ app.get('/', (req, res) => {
         console.log('Document data:', doc.data());
       }
 
-      console.log(doc)
+      if(data.localtime_e === doc.data().localtime_e){
+        console.log("no change")
+      } else {
+        console.log("change")
+        console.log("old: ", data.localtime_e )
+        console.log("new: ", doc.data().localtime_e)
+      }
+      
 
       //block to compare new and old values:
       
