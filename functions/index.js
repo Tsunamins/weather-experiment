@@ -59,6 +59,7 @@ app.get('/', (req, res) => {
       const localtime = weather_data.location.localtime
       const localtime_e = weather_data.location.localtime_epoch
 
+      //this isn't needed just for reference point, remove later or maybe use for comparisons
       const data = {
         temp: temp,
         wind_speed: wind_speed,
@@ -66,6 +67,20 @@ app.get('/', (req, res) => {
         localtime: localtime,
         localtime_e: localtime_e
       }
+
+      // get existing data, will prob want ot move to a separate file
+      const weatherRef = admin.firestore().collection('weather').doc('current');
+      const doc = await weatherRef.get();
+      if (!doc.exists) {
+        console.log('No such document!');
+      } else {
+        console.log('Document data:', doc.data());
+      }
+
+      console.log(doc)
+
+      //block to compare new and old values:
+      
      
         // write to specific document next
         // next create route or function to retrieve data from a specific document
