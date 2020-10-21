@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
       const wind_direction = weather_data.current.wind_dir
       const localtime = weather_data.location.localtime
       const localtime_e = weather_data.location.localtime_epoch
-      console.log(localtime_e)
+      console.log(localtime)
 
       //this isn't needed just for reference point, remove later or maybe use for comparisons
       const data = {
@@ -75,35 +75,31 @@ app.get('/', (req, res) => {
       const weatherRef = admin.firestore().collection('weather').doc('current');
       const doc = await weatherRef.get();
       if (!doc.exists) {
-        console.log('No such document!');
+          console.log('No such document!');
       } else {
-        console.log('Document data:', doc.data());
+          console.log('Document data:', doc.data());
       }
 
       //check if any updates have occured, in this example checking value of localtime_e
       if(data.localtime_e === doc.data().localtime_e){
-        console.log("no change")
+          console.log("no change")
       } else {
-        console.log("change")
-        console.log("old: ", data.localtime_e )
-        console.log("new: ", doc.data().localtime_e)
+          console.log("change")
+        // if there was a change get additional data/visit another endpoint
+          const  astronomy_resp = await fetch(`http://api.weatherapi.com/v1/astronomy.json?key=${key}&q=Miami&dt=2020-10-21`)
+          const astro_data = await astronomy_resp.json()
+          const moon_phase = astro_data.astronomy.astro.moon_phase
+          const moon_ill = astro_data.astronomy.astro.moon_illumination
+
+          //remember in emulator only mode, create collection and doc first
+          //goal to create route, retireive this new data and add to DOM
+          //officeR and salesF goal will be to simply process data and send to salesforce
+          const writeMoonPhase = await admin.firestore().collection('weather').doc("moon").set({
+            moon_phase: moon_phase,
+            moon_ill: moon_ill,
+        }); 
       }
 
-
-      // so next would be, in the event there is a change
-      // would want to find the change, in this case I'll just call some other endpoint
-      // in the weather api
-      // take the 'updated records'/the alternative endpoint and route them to the DOM
-      // parallel idea would be to on a detected change, find the changed/new records in officeR
-      // once those records were identified, idea would be to process data for salesforce
-      // call salesforce auth and update/create records by whatever means
-      // as example for now create a route 
-      
-
-    
-      
-     
-        // write to specific document next
         // next create route or function to retrieve data from a specific document
         const writeResult = await admin.firestore().collection('weather').doc("current").set({
             temp: temp,
@@ -120,4 +116,7 @@ app.get('/', (req, res) => {
   });
 
   exports.app = functions.https.onRequest(app);
+
+
+  // next goal in this file, create a new route that reads from current moon document and render to DOM in new view
 
