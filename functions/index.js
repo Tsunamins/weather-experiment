@@ -70,8 +70,8 @@ app.get('/', (req, res) => {
       }
 
       // get existing data, will prob want ot move to a separate file
-      // best to create in the firestore emulator/admin first to retrieve properly
-      // due to function of set()
+      // Note: best to create collection/document in the firestore 
+      // emulator/admin first to retrieve properly due to function of set()
       const weatherRef = admin.firestore().collection('weather').doc('current');
       const doc = await weatherRef.get();
       if (!doc.exists) {
@@ -80,6 +80,7 @@ app.get('/', (req, res) => {
         console.log('Document data:', doc.data());
       }
 
+      //check if any updates have occured, in this example checking value of localtime_e
       if(data.localtime_e === doc.data().localtime_e){
         console.log("no change")
       } else {
@@ -87,9 +88,19 @@ app.get('/', (req, res) => {
         console.log("old: ", data.localtime_e )
         console.log("new: ", doc.data().localtime_e)
       }
+
+
+      // so next would be, in the event there is a change
+      // would want to find the change, in this case I'll just call some other endpoint
+      // in the weather api
+      // take the 'updated records'/the alternative endpoint and route them to the DOM
+      // parallel idea would be to on a detected change, find the changed/new records in officeR
+      // once those records were identified, idea would be to process data for salesforce
+      // call salesforce auth and update/create records by whatever means
+      // as example for now create a route 
       
 
-      //block to compare new and old values:
+    
       
      
         // write to specific document next
