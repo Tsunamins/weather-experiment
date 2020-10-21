@@ -23,7 +23,7 @@ app.use(cors);
 //fetch
 const fetch = require('node-fetch');
 
-//env
+  //env
 require('dotenv').config({path: '../.env'})
 
 
@@ -67,8 +67,9 @@ app.get('/', (req, res) => {
         localtime_e: localtime_e
       }
      
-  
-        const writeResult = await admin.firestore().collection('weather').add({
+        // write to specific document next
+        // next create route or function to retrieve data from a specific document
+        const writeResult = await admin.firestore().collection('weather').doc("current").set({
             temp: temp,
             wind_speed: wind_speed,
             wind_direction: wind_direction,
