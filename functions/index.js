@@ -45,6 +45,39 @@ app.get('/', (req, res) => {
     </html>`);
   });
 
+
+  app.get('/moon', async (req, res) => {
+    const moonRef = admin.firestore().collection('weather').doc('moon');
+    const doc = await moonRef.get();
+    let moon_phase = ""
+    let moon_illum = 0
+    if (!doc.exists) {
+        console.log('No such document!');
+    } else {
+        console.log('Document data:', doc.data());
+        moon_phase = doc.data().moon_phase
+        moon_illum = doc.data().moon_illum
+    }
+
+    res.send(`
+      <!doctype html>
+      <head>
+        <title>Moon</title>
+      </head>
+      <body>
+        <p>Moon Information
+          <span id="moon_phase">${moon_phase}</span></p>
+          <p>Moon Information
+          <span id="moon_illum">${moon_illum}</span></p>
+      </body>
+    </html>`);
+
+
+  })
+
+
+
+
 // as in : http://localhost:5001/weather-experiment-e343d/us-central1/app/miamiweather
   app.get('/miamiweather', async (req, res) => {
     const key = process.env.API_KEY
@@ -89,14 +122,14 @@ app.get('/', (req, res) => {
           const  astronomy_resp = await fetch(`http://api.weatherapi.com/v1/astronomy.json?key=${key}&q=Miami&dt=2020-10-21`)
           const astro_data = await astronomy_resp.json()
           const moon_phase = astro_data.astronomy.astro.moon_phase
-          const moon_ill = astro_data.astronomy.astro.moon_illumination
+          const moon_illum = astro_data.astronomy.astro.moon_illumination
 
           //remember in emulator only mode, create collection and doc first
           //goal to create route, retireive this new data and add to DOM
           //officeR and salesF goal will be to simply process data and send to salesforce
           const writeMoonPhase = await admin.firestore().collection('weather').doc("moon").set({
             moon_phase: moon_phase,
-            moon_ill: moon_ill,
+            moon_illum: moon_illum,
         }); 
       }
 
